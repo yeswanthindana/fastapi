@@ -1,5 +1,7 @@
-
 import uvicorn
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI, Depends
 import models, oauth2
 import utils
@@ -15,9 +17,6 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="API")
 
-@app.get("/")
-def root():
-    return {"status": "running"}
     
 app.add_middleware(
     CORSMiddleware,

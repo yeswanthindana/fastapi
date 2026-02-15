@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users | OctopiX Cloud</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .user-form {
+            width: 100%;
+            max-width: 600px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            padding: 2.5rem;
+        }
+    </style>
+</head>
+
+<body class="animate-fade">
+    <div id="nav-container"></div>
+
+    <div style="max-width: 1200px; margin: 2rem auto; padding: 0 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1>Identity management</h1>
+            <button class="btn btn-primary" onclick="showUserModal()">+ Create User</button>
+        </div>
+
+        <div class="table-container glass">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Identity</th>
+                        <th>Username</th>
+                        <th>Contact</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <tr>
+                        <td colspan="4" style="text-align: center;">Retrieving global identities...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <div id="userModal" class="modal">
+        <div class="glass user-form animate-fade">
+            <h2 style="grid-column: span 2;">Create System User</h2>
+
+            <div class="input-group">
+                <label>First Name</label>
+                <input type="text" id="fname" required>
+            </div>
+            <div class="input-group">
+                <label>Last Name</label>
+                <input type="text" id="lname" required>
+            </div>
+            <div class="input-group">
+                <label>Username</label>
+                <input type="text" id="uname" required>
+            </div>
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="pwd" required>
+            </div>
+            <div class="input-group">
+                <label>Phone Number</label>
+                <input type="text" id="phone">
+            </div>
+            <div class="input-group">
+                <label>Role</label>
+                <select id="roleSelect" required></select>
+            </div>
+            <div class="input-group">
+                <label>Organization</label>
+                <select id="orgSelect" required></select>
+            </div>
+
+            <div style="grid-column: span 2; display: flex; gap: 1rem; margin-top: 1rem;">
+                <button onclick="saveUser()" class="btn btn-primary" style="flex: 1;">Create Identity</button>
+                <button onclick="closeModal()" class="btn glass" style="flex: 1;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        checkAuth();
+        injectNav();
+
+        async function loadUsers() {
+            const body = document.getElementById('userTableBody');
+            try {
+                const users = await api.get('/user/all');
+                body.innerHTML = users.map(u => `
+                    <tr class="animate-fade">
+                        <td>
+                            <div style="font-weight: 600;">${u.firstname} ${u.lastname}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">${u.email}</div>
+                        </td>
+                        <td><span class="glass" style="padding: 0.2rem 0.6rem; border-radius: 1rem; font-size: 0.8rem;">@${u.username}</span></td>
+                        <td style="color: var(--text-muted)">${u.phonenumber || 'N/A'}</td>
+                        <td>
+                            <button class="btn btn-danger" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="deleteUser(${u.id})">Revoke</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                body.innerHTML = `<tr><td colspan="4" style="text-align:center;">${err.message}</td></tr>`;
+            }
+        }
+
+        async function showUserModal() {
+            // Load dropdowns
+            try {
+                const rRes = await api.get('/role/all');
+                const oRes = await api.get('/organization/all');
+
+                const roles = rRes.data || rRes;
+                const orgs = oRes.data || oRes;
+
+                document.getElementById('roleSelect').innerHTML = roles.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+                document.getElementById('orgSelect').innerHTML = orgs.map(o => `<option value="${o.id}">${o.name}</option>`).join('');
+
+                document.getElementById('userModal').style.display = 'flex';
+            } catch (err) {
+                showToast('Failed to load metadata', 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('userModal').style.display = 'none';
+        }
+
+        async function saveUser() {
+            const payload = {
+                firstname: document.getElementById('fname').value,
+                lastname: document.getElementById('lname').value,
+                username: document.getElementById('uname').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('pwd').value,
+                phonenumber: document.getElementById('phone').value,
+                role_id: parseInt(document.getElementById('roleSelect').value),
+                organization_id: parseInt(document.getElementById('orgSelect').value),
+                is_active: true
+            };
+
+            try {
+                await api.post('/user', payload);
+                showToast('Identity created!', 'success');
+                closeModal();
+                loadUsers();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function deleteUser(id) {
+            if (!confirm('Confirm identity revocation?')) return;
+            try {
+                await api.delete(`/user/${id}`);
+                showToast('User deleted', 'success');
+                loadUsers();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        loadUsers();
+    </script>
+</body>
+
+</html>

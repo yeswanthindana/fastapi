@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | OctopiX Cloud</title>
+    <meta name="description" content="Secure portal for OctopiX Cloud Management">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="animate-fade">
+    <div class="form-container glass">
+        <h1 class="nav-brand" style="text-align: center; margin-bottom: 2rem;">OctopiX Login</h1>
+        <form id="loginForm">
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="username" placeholder="name@company.com" required>
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+        </form>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        checkAuth();
+
+        document.getElementById('loginForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('username', document.getElementById('username').value);
+            formData.append('password', document.getElementById('password').value);
+
+            try {
+                // Backend expects OAuth2 form data
+                const response = await fetch('http://127.0.0.1:8000/login', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || 'Login failed');
+                
+                localStorage.setItem('token', data.access_token);
+                showToast('Welcome back!', 'success');
+                setTimeout(() => window.location.href = 'dashboard.html', 500);
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        };
+    </script>
+</body>
+</html>

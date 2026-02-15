@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roles Management | OctopiX Cloud</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="animate-fade">
+    <div id="nav-container"></div>
+
+    <div style="max-width: 1000px; margin: 2rem auto; padding: 0 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1>Role Management</h1>
+            <button class="btn btn-primary" onclick="showCreateForm()">+ New Role</button>
+        </div>
+
+        <!-- Create/Edit Form (Hidden by default) -->
+        <div id="roleFormBlock" class="glass" style="display: none; padding: 2rem; margin-bottom: 2rem;">
+            <h3 id="formTitle">Create New Role</h3>
+            <form id="roleForm"
+                style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; align-items: end;">
+                <div class="input-group" style="margin:0">
+                    <label>Role Name</label>
+                    <input type="text" id="roleName" required>
+                </div>
+                <div class="input-group" style="margin:0">
+                    <label>Description</label>
+                    <input type="text" id="roleDesc" required>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn glass" onclick="hideForm()">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-container glass">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="rolesTableBody">
+                    <tr>
+                        <td colspan="4" style="text-align: center;">Loading configurations...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        checkAuth();
+        injectNav();
+
+        const formBlock = document.getElementById('roleFormBlock');
+        const roleForm = document.getElementById('roleForm');
+        let editingId = null;
+
+        async function loadRoles() {
+            const body = document.getElementById('rolesTableBody');
+            try {
+                const res = await api.get('/role/all');
+                const roles = res.data || res;
+                body.innerHTML = roles.map(r => `
+                    <tr class="animate-fade">
+                        <td>#${r.id}</td>
+                        <td style="font-weight: 600;">${r.name}</td>
+                        <td style="color: var(--text-muted);">${r.description}</td>
+                        <td>
+                            <button class="btn btn-danger" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="deleteRole(${r.id})">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                body.innerHTML = `<tr><td colspan="4" style="color:red; text-align:center;">${err.message}</td></tr>`;
+            }
+        }
+
+        function showCreateForm() {
+            editingId = null;
+            document.getElementById('formTitle').innerText = 'Create New Role';
+            roleForm.reset();
+            formBlock.style.display = 'block';
+        }
+
+        function hideForm() {
+            formBlock.style.display = 'none';
+        }
+
+        roleForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('roleName').value,
+                description: document.getElementById('roleDesc').value
+            };
+
+            try {
+                await api.post('/role', payload);
+                showToast('Role created!', 'success');
+                hideForm();
+                loadRoles();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        };
+
+        async function deleteRole(id) {
+            if (!confirm('Are you sure you want to delete this role?')) return;
+            try {
+                await api.delete(`/role/${id}`);
+                showToast('Role deleted', 'success');
+                loadRoles();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        loadRoles();
+    </script>
+</body>
+
+</html>

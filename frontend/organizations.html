@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizations | OctopiX Cloud</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="animate-fade">
+    <div id="nav-container"></div>
+
+    <div style="max-width: 1000px; margin: 2rem auto; padding: 0 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1>Organization Management</h1>
+            <button class="btn btn-primary" onclick="showForm()">+ New Organization</button>
+        </div>
+
+        <div id="orgFormBlock" class="glass" style="display: none; padding: 2rem; margin-bottom: 2rem;">
+            <h3>Register Organization</h3>
+            <form id="orgForm" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; align-items: end;">
+                <div class="input-group" style="margin:0">
+                    <label>Org Name</label>
+                    <input type="text" id="orgName" required>
+                </div>
+                <div class="input-group" style="margin:0">
+                    <label>Description</label>
+                    <input type="text" id="orgDesc" required>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="submit" class="btn btn-primary">Add</button>
+                    <button type="button" class="btn glass"
+                        onclick="this.parentElement.parentElement.parentElement.style.display='none'">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-container glass">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Organization Name</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="orgTableBody">
+                    <tr>
+                        <td colspan="4" style="text-align: center;">Synchronizing workspaces...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        checkAuth();
+        injectNav();
+
+        async function loadOrgs() {
+            const body = document.getElementById('orgTableBody');
+            try {
+                const res = await api.get('/organization/all');
+                const orgs = res.data || res;
+                body.innerHTML = orgs.map(o => `
+                    <tr class="animate-fade">
+                        <td>#${o.id}</td>
+                        <td style="font-weight: 600;">${o.name}</td>
+                        <td>${o.description}</td>
+                        <td>
+                            <button class="btn btn-danger" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="deleteOrg(${o.id})">Remove</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                body.innerHTML = `<tr><td colspan="4" style="color:red; text-align:center;">${err.message}</td></tr>`;
+            }
+        }
+
+        function showForm() {
+            document.getElementById('orgFormBlock').style.display = 'block';
+        }
+
+        document.getElementById('orgForm').onsubmit = async (e) => {
+            e.preventDefault();
+            try {
+                await api.post('/organization', {
+                    name: document.getElementById('orgName').value,
+                    description: document.getElementById('orgDesc').value
+                });
+                showToast('Organization registered!', 'success');
+                document.getElementById('orgFormBlock').style.display = 'none';
+                loadOrgs();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        };
+
+        async function deleteOrg(id) {
+            if (!confirm('Warning: Deleting an organization is permanent. Proceed?')) return;
+            try {
+                await api.delete(`/organization/${id}`);
+                showToast('Deleted successfully', 'success');
+                loadOrgs();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        loadOrgs();
+    </script>
+</body>
+
+</html>
