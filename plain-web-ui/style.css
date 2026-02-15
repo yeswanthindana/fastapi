@@ -1,0 +1,76 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #fce4ec; /* Light pink background */
+    color: #333;
+}
+
+h1 {
+    color: #880e4f; /* Dark pink heading */
+    margin-bottom: 20px;
+}
+
+.section {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+h2 {
+    color: #ad1457; /* Slightly lighter dark pink */
+    margin-top: 0;
+}
+
+h3 {
+    color: #c2185b;
+    margin-bottom: 15px;
+}
+
+button {
+    background-color: #d81b60; /* Button color */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #ad1457;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box; /* Include padding in width */
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.output {
+    background-color: #f8bbd0; /* Very light pink output background */
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 15px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    white-space: pre-wrap;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #f48fb1;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+}

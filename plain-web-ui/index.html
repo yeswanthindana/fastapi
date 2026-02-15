@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Tester - Plain HTML</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Embedding some basic styles here to start, more in style.css */
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        .section {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 5px;
+        }
+
+        button {
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+
+        .output {
+            background: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>API Tester</h1>
+    <p>Base URL: <input type="text" id="baseUrl" value="http://192.168.31.125:8000"
+            style="width: 300px; display: inline-block;"></p>
+
+    <div class="grid">
+
+        <!-- Organizations Section -->
+        <div class="section" id="section-organizations">
+            <h2>Organizations</h2>
+
+            <h3>Create Organization</h3>
+            <div class="form-group">
+                <input type="text" id="org-name" placeholder="Name">
+                <input type="text" id="org-desc" placeholder="Description">
+                <button onclick="createOrganization()">Create</button>
+            </div>
+
+            <h3>List All</h3>
+            <button onclick="getAllOrganizations()">Get All Organizations</button>
+
+            <h3>Get/Delete by ID</h3>
+            <div class="form-group">
+                <input type="number" id="org-id" placeholder="Organization ID">
+                <button onclick="getOrganizationById()">Get</button>
+                <button onclick="deleteOrganizationById()">Delete</button>
+            </div>
+
+            <div class="output" id="output-org">Output will appear here...</div>
+        </div>
+
+        <!-- Roles Section -->
+        <div class="section" id="section-roles">
+            <h2>Roles</h2>
+
+            <h3>Create Role</h3>
+            <div class="form-group">
+                <input type="text" id="role-name" placeholder="Name">
+                <input type="text" id="role-desc" placeholder="Description">
+                <button onclick="createRole()">Create</button>
+            </div>
+
+            <h3>List All</h3>
+            <button onclick="getAllRoles()">Get All Roles</button>
+
+            <h3>Get/Delete by ID</h3>
+            <div class="form-group">
+                <input type="number" id="role-id" placeholder="Role ID">
+                <button onclick="getRoleById()">Get</button>
+                <button onclick="deleteRoleById()">Delete</button>
+            </div>
+
+            <div class="output" id="output-role">Output will appear here...</div>
+        </div>
+
+        <!-- Users Section -->
+        <div class="section" id="section-users">
+            <h2>Users</h2>
+
+            <h3>Create User</h3>
+            <div class="form-group">
+                <input type="text" id="user-username" placeholder="Username">
+                <input type="email" id="user-email" placeholder="Email">
+                <input type="password" id="user-password" placeholder="Password">
+                <input type="text" id="user-firstname" placeholder="First Name">
+                <input type="text" id="user-lastname" placeholder="Last Name">
+                <input type="number" id="user-role-id" placeholder="Role ID">
+                <input type="number" id="user-org-id" placeholder="Organization ID">
+                <input type="text" id="user-phone" placeholder="Phone Number (Optional)">
+                <button onclick="createUser()">Create</button>
+            </div>
+
+            <h3>List All</h3>
+            <button onclick="getAllUsers()">Get All Users</button>
+
+            <h3>Get/Delete by ID</h3>
+            <div class="form-group">
+                <input type="number" id="user-id" placeholder="User ID">
+                <button onclick="getUserById()">Get</button>
+                <button onclick="deleteUserById()">Delete</button>
+            </div>
+
+            <div class="output" id="output-user">Output will appear here...</div>
+        </div>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
