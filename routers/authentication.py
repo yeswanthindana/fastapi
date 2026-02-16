@@ -4,24 +4,48 @@ import schemas, models, jwt_token
 from sqlalchemy.orm import Session
 from database import get_db
 from hash import Hash
-
+import repository.authentication as authentication
 from fastapi.security import OAuth2PasswordRequestForm
+from schemas import Login
 
-router = APIRouter(tags=["Authentication"])
+router = APIRouter(prefix="/auth",tags=["Authentication"])
 
-# def login(request: schemas.Login, db: Session = Depends(get_db)):
-#     user = db.query(models.user).filter(models.user.email == request.email).first()
 
-@router.post("/login", response_model=schemas.Token)
-def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    # OAuth2PasswordRequestForm uses 'username' field for the login identifier (which is email in our case)
-    user = db.query(models.user).filter(models.user.email == request.username).first()
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Incorrect Email Id")
-    
-    if not Hash.verify_password(request.password, user.password):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Incorrect Password")
 
-    access_token = jwt_token.create_access_token(data={"sub": user.email})
-    
-    return {"access_token": access_token, "token_type": "bearer"}
+@router.post("/login", status_code=status.HTTP_202_ACCEPTED,response_model=schemas.Token)
+def login(request: schemas.Login, db: Session = Depends(get_db)):
+    """
+    Login with email and password
+    """
+    return authentication.login(request, db)
+
+
+@router.post("/logout", status_code=status.HTTP_202_ACCEPTED,response_model_include=["message"])
+def logout(request: schemas.Logout, db: Session = Depends(get_db)):
+    """
+    Logout with email and password
+    """
+    return authentication.logout(request, db)
+
+
+@router.post("/forgotpassword", status_code=status.HTTP_202_ACCEPTED,response_model_include=["message"])    
+def forgotpassword(request: schemas.forgotpassword, db: Session = Depends(get_db)):
+    """
+    Forgot password with email
+    """
+    return authentication.forgotpassword(request, db)    
+
+
+@router.post("/resetpassword", status_code=status.HTTP_202_ACCEPTED,response_model_include=["message"])    
+def resetpassword(request: schemas.resetpassword, db: Session = Depends(get_db)):
+    """
+    Reset password with email
+    """
+    return authentication.resetpassword(request, db)    
+
+@router.post("/changepassword", status_code=status.HTTP_202_ACCEPTED,response_model_include=["message"])
+def changepassword(request: schemas.changepassword, db: Session = Depends(get_db)):
+    """
+    Change password with email
+    """
+    return authentication.changepassword(request, db)

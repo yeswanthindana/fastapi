@@ -81,10 +81,25 @@ class Login(BaseModel):
     email: str
     password: str
 
-
 class Token(BaseModel):
     access_token: str
     token_type: str
 
 class TokenData(BaseModel):
     email: Optional[str] = None
+
+class Logout(BaseModel):
+    email: str
+    
+
+class forgotpassword(BaseModel):
+    email: str
+
+class resetpassword(BaseModel):
+    email : str
+
+
+class changepassword(BaseModel):
+    email : str
+    old_password : str
+    new_password : str    

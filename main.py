@@ -26,7 +26,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(authentication.router)
+app.include_router(authentication.router, dependencies=[Depends(utils.verify_unique_keys)])
 app.include_router(user.router, dependencies=[Depends(utils.verify_unique_keys), Depends(oauth2.get_current_user)])
 app.include_router(role.router, dependencies=[Depends(utils.verify_unique_keys), Depends(oauth2.get_current_user)])
 app.include_router(organization.router, dependencies=[Depends(utils.verify_unique_keys), Depends(oauth2.get_current_user)])

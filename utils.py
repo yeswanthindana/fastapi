@@ -1,6 +1,8 @@
 from fastapi import Request, HTTPException, status
 import json
 import logging
+import random
+import string
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO)
@@ -45,4 +47,12 @@ async def verify_unique_keys(request: Request):
             )
         except Exception:
             # Let default parsers handle other malformed JSON errors
-            pass
+            pass    
+
+def generate_random_password(length=12):
+    """
+    Generates a secure random password of given length.
+    """
+    characters = string.ascii_letters + string.digits + string.punctuation
+    password = ''.join(random.choice(characters) for i in range(length))
+    return password
